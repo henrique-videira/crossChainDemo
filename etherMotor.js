@@ -73,12 +73,20 @@ const accounts =
       
      const alienToken = new ethers.Contract('0x1352C77b6676b62b49D3eA78c8C887070eD44D63', abi, alien);
       
-          console.log ('#######################');
-          console.log (alienToken.target);
-          const get = async() => {
-          console.log (await (alienToken.balanceOf(ownerAlien.address)));
-          }
-          get();
+     async function alienSetup () { 
+
+      console.log (await (alienToken.balanceOf(owner.address)));
+      
+      const tx = await alienToken.connect(owner).transfer(aliceAlien.address, equalbalance);
+      console.log (tx.wait().logs[0].args);
+      await alienToken.connect(owner).transfer(mikeAlien.address, equalbalance);
+
+        console.log (await (alienToken.balanceOf(aliceAlien.address)));
+        console.log (await (alienToken.balanceOf(mikeAlien.address)));
+
+     }
+
+     alienSetup();
 
       const parsedDrexToken = JSON.parse(fs.readFileSync("./artifacts/DrexToken.json"));
       const abiDrexToken = parsedDrexToken.abi;
@@ -89,25 +97,7 @@ const accounts =
           console.log (drexToken.target);
           console.log ("Owner balance");
 
-          const get2 = async() => {
-          console.log (await (alienToken.balanceOf(owner.address)));
-          }
-          get2();
-
-          const transferAlien = async() => {
-          for (let i = 0; i < alienSigners.length; i++) {
-            console.log (alienSigners[i].address);
-            await alienToken.connect(owner).transfer(alienSigners[i].address, equalbalance);
-            }
-          }
-
-          transferAlien();
-
-          const getAlienBalance = async() => {
-            console.log (await (alienToken.balanceOf(aliceAlien.address)));
-            console.log (await (alienToken.balanceOf(mikeAlien.address)));
-            }
-            getAlienBalance();
+          
 
 
 
