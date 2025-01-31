@@ -163,7 +163,7 @@ const accounts =
               [alienSigners[i].address,
               alienSigners[i+1].address,
               alienToken.target],
-              110000000000000,
+              115000000000000,
               '0x0000000000000000000000000000000000000000000000000000000000000000');
               await (txMikeLock.wait());
             }
