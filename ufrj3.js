@@ -7,7 +7,8 @@ const alienConfirmation = 3*drexLeg; // in time slot
 const alienExpiration = 2*alienConfirmation; // in time slot
 //const equalbalance = (10**15); // 18 is the number of decimals
 
-const equalbalance = BigInt (1000**18);
+const equalbalance = 1000000000000000000000n;
+//console.log (equalbalance)
 // 2. Define network configurations
 const providerRPC = {
   moonbeam: {
@@ -114,44 +115,55 @@ const accounts =
     async function CrossChainTransfer () { 
 
         
-      //await drexToken.connect(owner).transfer(alice.address, equalbalance);
-      //await drexToken.connect(owner).transfer(mike.address, equalbalance);
+      //const tx1 = await drexToken.connect(owner).transfer(alice.address, equalbalance);
+      //await (tx1.wait());
+      //const tx2 = await drexToken.connect(owner).transfer(mike.address, equalbalance);
+      //await (tx2.wait());
 
-      console.log (await (drexToken.balanceOf(alice.address)));
-      console.log (await (drexToken.balanceOf(mike.address)));
+      console.log ('Alice Drex Balance :', await (drexToken.balanceOf(alice.address)));
+      console.log ('Mike Drex Balance :', await (drexToken.balanceOf(mike.address)));
 
       const aliceDrexBalance = await (drexToken.balanceOf(alice.address));
       const mikeDrexBalance =  await (drexToken.balanceOf(mike.address));
 
       // Approving DrexListrack to spend Drex Tokens
-        await (drexToken.connect(alice).
+        const tx_all = await (drexToken.connect(alice).
                     approve(Listrack.target, aliceDrexBalance));
-        console.log ('Allowance ' + await (drexToken.allowance(alice.address,Listrack.target)));
-        await (drexToken.connect(mike).
+        await (tx_all.wait());
+        console.log ('Allowance from Alice to Listrack :' + await (drexToken.allowance(alice.address,Listrack.target)));
+        
+        const tx_all2 = await (drexToken.connect(mike).
                     approve(Listrack.target, mikeDrexBalance));
-        console.log ('Allowance ' + await (drexToken.allowance(mike.address,Listrack.target)));
+        await (tx_all2.wait());
+        console.log ('Allowance from Mike to Listrack :' + await (drexToken.allowance(mike.address,Listrack.target)));
      
-    //await alienToken.connect(ownerAlien).transfer(aliceAlien.address, equalbalance);
-    //await alienToken.connect(ownerAlien).transfer(mikeAlien.address, equalbalance);
-    console.log (await (alienToken.balanceOf(aliceAlien.address)));
-    console.log (await (alienToken.balanceOf(mikeAlien.address)));
+    //const tx3 = await alienToken.connect(ownerAlien).transfer(aliceAlien.address, equalbalance);
+    //await tx3.wait();
+    //const tx4 = await alienToken.connect(ownerAlien).transfer(mikeAlien.address, equalbalance);
+    //await tx4.wait();
+
+    console.log ('Alice Alien Token Balance', await (alienToken.balanceOf(aliceAlien.address)));
+    console.log ('Mike Alien Balance', await (alienToken.balanceOf(mikeAlien.address)));
 
     
     const aliceAlienBalance = await (alienToken.balanceOf(aliceAlien.address));
     const mikeAlienBalance =  await (alienToken.balanceOf(mikeAlien.address));
 
       // Approving AlienListrack to spend Alien Tokens
-        await (alienToken.connect(aliceAlien).
+        const tx_all3 = await (alienToken.connect(aliceAlien).
                     approve(alienListrack.target, aliceAlienBalance));
-        console.log ('Allowance ' + await (alienToken.allowance(aliceAlien.address,alienListrack.target)));
-        await (alienToken.connect(mikeAlien).
+        await (tx_all3.wait());
+        console.log ('Allowance from Alice to AlienListrack :' + await (alienToken.allowance(aliceAlien.address,alienListrack.target)));
+        
+        const tx_all4 = await (alienToken.connect(mikeAlien).
                     approve(alienListrack.target, mikeAlienBalance));
-        console.log ('Allowance ' + await (alienToken.allowance(mikeAlien.address,alienListrack.target)));
+        await (tx_all4.wait());
+        console.log ('Allowance from Mike to AlienListrack :' + await (alienToken.allowance(mikeAlien.address,alienListrack.target)));
 
         console.log ("** Transactions TO BE Locked by Mike in Drex **");
         console.log ("** Transactions TO BE Locked by Mike in Drex **");
 
-        console.log (await drexToken.balanceOf(Listrack.target));
+        //console.log (await drexToken.balanceOf(Listrack.target));
 
             // Mike sends Tx in Drex
             for (let i = 0; i < drexSigners.length-1; i++) {
@@ -159,12 +171,12 @@ const accounts =
               [drexSigners[i].address,
               drexSigners[i+1].address,
               drexToken.target],
-              BigInt (100**18),
+              20000000000000000000n,
               [merkleContract.target],
               [alienSigners[i].address,
               alienSigners[i+1].address,
               alienToken.target],
-              BigInt (100**18),
+              20000000000000000000n,
               '0x0000000000000000000000000000000000000000000000000000000000000000');
               await (txMikeLock.wait());
             }
@@ -234,7 +246,7 @@ console.log ("** Transactions Locked by Mike in Drex **");
 console.log ("** Trades Settled in Alien Chain **");
 console.log ("** Trades Settled in Alien Chain **");
 
-console.log ('Tx Ids Pushed',txIdsAlienPushed);
+//console.log ('Tx Ids Pushed',txIdsAlienPushed);
 
 // the array below is to store the alien features of the Tx Id settled in Alien Chain
 TxValidation = [];
@@ -247,14 +259,13 @@ const alfredAlien = alienSigners[0];
 
   for (let i=txIdsAlienPushed.length-1; i<txIdsAlienPushed.length; i++) {
     //console.log (txIdsAlienPushed[i]);
-    console.log (await alienListrack.connect(alfredAlien)
-                          .getTradeFeatures(txIdsAlienPushed[i]));
+    //console.log (await alienListrack.connect(alfredAlien).getTradeFeatures(txIdsAlienPushed[i]));
     const alienFeatures = await alienListrack.connect(alfredAlien)
                           .getTradeFeatures(txIdsAlienPushed[i]);
     //console.log (typeof alienFeatures);
     const merkleProof = await alienListrack.connect(alfredAlien).
                           createMerkleTree(alienFeatures[0],true,alienFeatures[1]);
-    console.log (merkleProof);
+    //console.log (merkleProof);
     TxValidation[i] = [txIdsAlienPushed[i],alienFeatures[1],merkleProof,alienFeatures[0]];
 
     // storing the slot numbers for validation in Merkle Contract
@@ -270,7 +281,7 @@ const alfredAlien = alienSigners[0];
   console.log ("** Each Merkle Signer begins to listen to Alien Chain **");
   console.log ("** Each Merkle Signer listens to Alien Merkle Root through gasfree Tx **");
 
-  console.log (slotNumber);
+  console.log ('Transaction Slot Number :',slotNumber);
 
   for (j = 0; j<slotNumber.length; j++) { // validation for each block in the transactions
   for (let i=0; i<merkleSigners.length-1;i++){
@@ -281,9 +292,9 @@ const alfredAlien = alienSigners[0];
   // const latestSlot = await (alienListrack.connect(merkleSigners[i]).getLatestSlot());
 
   const slotToVerify = slotNumber[j];
-  console.log (slotToVerify);
+  //console.log (slotToVerify);
   const merkleRoot = await (alienListrack.connect(alienMerkleSigners[i]).createMerkleTree(slotToVerify,false,0));
-  console.log(merkleRoot);
+  //console.log(merkleRoot);
   // merkleRoot[0] is the Merkle Root returned by Function in a array object
   const txMerkle = await (merkleContract.connect(merkleSigners[i]).insertMerkleForApproval(merkleRoot[0],slotToVerify));
   await txMerkle.wait();
@@ -299,12 +310,12 @@ const alfredAlien = alienSigners[0];
    /// SENDING TRANSACTIONS FOR SETTLEMENT IN DREX LISTRACK BY ALICE
 
    for (let i=0; i<TxValidation.length; i++) {
-    console.log ('Campos da Validacao',TxValidation[i]);
+    //console.log ('Campos da Validacao',TxValidation[i]);
     merkleProof = Object.values(TxValidation[i][2]);
-    console.log ('Tx Id',TxValidation[i][0]);
-    console.log ('Slot Number',TxValidation[i][3]);
-    console.log ('Slot Index',TxValidation[i][1]);
-    console.log ('Merkle Proof', merkleProof);
+    //console.log ('Tx Id',TxValidation[i][0]);
+    //console.log ('Slot Number',TxValidation[i][3]);
+    //console.log ('Slot Index',TxValidation[i][1]);
+    //console.log ('Merkle Proof', merkleProof);
    await Listrack.connect(alice)
                   .aliceSettleTrade(TxValidation[i][0],TxValidation[i][1],
                    merkleProof,TxValidation[i][3],
